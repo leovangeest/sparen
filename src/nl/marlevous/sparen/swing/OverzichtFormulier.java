@@ -1,0 +1,380 @@
+/*
+ * Copyright (C) 2012 MarLeVous
+ *
+ * This program is made by MarLevous Home Grown Software.
+ * There are no guarantees about the correct working of
+ * this software. Use it at your own risk.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ */
+package nl.marlevous.sparen.swing;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionListener;
+import nl.marlevous.sparen.Transactie;
+import nl.marlevous.sparen.database.TransactieDAO;
+
+/**
+ *
+ * @author Note201
+ */
+public class OverzichtFormulier extends javax.swing.JFrame implements VertoonTransactie {
+
+    private final int ID_COLUMN_WIDTH = 45;
+    private final int DATE_COLUMN_WIDTH = 80;
+    DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+    private DocumentListener transactieDatumDocumentListener;
+    private DocumentListener transactieRedenDocumentListener;
+    private Transactie currentTransactie;
+    TransactieTableModel transactieTableModel = new TransactieTableModel();
+    private List<Transactie> transactieLijst;
+
+    /**
+     * Creates new form OverzichtFormulier2
+     */
+    public OverzichtFormulier() {
+        initComponents();
+        transactieLijst = TransactieDAO.getAlleTransacties();
+
+        transactieTableModel.setTransactieLijst(transactieLijst);
+        transactieTabel.setModel(transactieTableModel);
+        ListSelectionListener listener =
+                new TransactieTabelSelectionListener(transactieTabel, this);
+        ListSelectionModel listSelectionModel = new DefaultListSelectionModel();
+        listSelectionModel.addListSelectionListener(listener);
+        transactieTabel.setSelectionModel(listSelectionModel);
+        transactieTabel.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        setColumnWidth(transactieTabel, 0, ID_COLUMN_WIDTH);
+        setColumnWidth(transactieTabel, 1, DATE_COLUMN_WIDTH);
+        transactieTabel.getColumnModel().getColumn(1).setCellRenderer(new DatumCellRenderer());
+        transactieTabel.doLayout();
+
+        // Ondersteuning voor wijzigen datum en omschrijving
+        transactieDatumDocumentListener = new DocumentListener() {
+
+            private void handleEvent(DocumentEvent e) {
+                if (currentTransactie != null) {
+                    if (currentTransactie.datum() != transactieDatum.getValue()) {
+                        currentTransactie.setDatum((Date) transactieDatum.getValue());
+                        btnSlaOp.setEnabled(true);
+                    }
+                }
+
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+        };
+        transactieDatum.getDocument().addDocumentListener(transactieDatumDocumentListener);
+
+        transactieRedenDocumentListener = new DocumentListener() {
+
+            private void handleEvent(DocumentEvent e) {
+                if (currentTransactie != null) {
+                    if (currentTransactie.reden() == null ? transactieReden.getText() != null : !currentTransactie.reden().equals(transactieReden.getText())) {
+                        currentTransactie.setReden(transactieReden.getText());
+                        btnSlaOp.setEnabled(true);
+                    }
+                }
+
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                handleEvent(e);
+            }
+        };
+        transactieReden.getDocument().addDocumentListener(transactieRedenDocumentListener);
+
+    }
+
+    private void setColumnWidth(JTable table, int column, int width) {
+        table.getColumnModel().getColumn(column).setPreferredWidth(width);
+        table.getColumnModel().getColumn(column).setMaxWidth(width);
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        transactieTabel = new javax.swing.JTable();
+        transactieID = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        transactieReden = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        rekeningOverzichtTabel = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        spaarpotOverzichtTabel = new javax.swing.JTable();
+        transactieDatum = transactieDatum = new javax.swing.JFormattedTextField(df);
+        btnSlaOp = new javax.swing.JButton();
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Transactie Overzicht");
+        setLocationByPlatform(true);
+        setPreferredSize(new java.awt.Dimension(1024, 512));
+
+        transactieTabel.setAutoCreateRowSorter(true);
+        transactieTabel.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane2.setViewportView(transactieTabel);
+
+        transactieID.setEditable(false);
+
+        jLabel1.setText("Nr");
+
+        jLabel2.setText("Datum");
+
+        jLabel3.setText("Reden");
+
+        rekeningOverzichtTabel.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane3.setViewportView(rekeningOverzichtTabel);
+
+        spaarpotOverzichtTabel.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane4.setViewportView(spaarpotOverzichtTabel);
+
+        btnSlaOp.setText("Sla op");
+        btnSlaOp.setEnabled(false);
+        btnSlaOp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSlaOpActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 469, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(transactieID)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(transactieDatum, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(8, 8, 8)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(transactieReden)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnSlaOp))))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 528, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(transactieID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(transactieReden, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(transactieDatum, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSlaOp))
+                        .addGap(26, 26, 26)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(110, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSlaOpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSlaOpActionPerformed
+        if (currentTransactie != null) {
+            TransactieDAO tdao = new TransactieDAO(currentTransactie);
+            try {
+                tdao.saveSimple();
+            } catch (Exception ex) {
+                Logger.getLogger(OverzichtFormulier.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            transactieLijst = TransactieDAO.getAlleTransacties();
+            transactieTableModel.setTransactieLijst(transactieLijst);
+            transactieTableModel.fireTableDataChanged();
+        }
+    }//GEN-LAST:event_btnSlaOpActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /*
+         * Set the Nimbus look and feel
+         */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+         * default look and feel. For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Windows".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(OverzichtFormulier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(OverzichtFormulier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(OverzichtFormulier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(OverzichtFormulier.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /*
+         * Create and display the form
+         */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                new OverzichtFormulier().setVisible(true);
+            }
+        });
+    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnSlaOp;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable rekeningOverzichtTabel;
+    private javax.swing.JTable spaarpotOverzichtTabel;
+    private javax.swing.JFormattedTextField transactieDatum;
+    private javax.swing.JTextField transactieID;
+    private javax.swing.JTextField transactieReden;
+    private javax.swing.JTable transactieTabel;
+    // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void Vertoon(Transactie transactie) {
+        this.currentTransactie = transactie;
+        this.transactieID.setText(String.format("%d", transactie.id()));
+        this.transactieDatum.setValue(transactie.datum());
+        this.transactieReden.setText(transactie.reden());
+        this.rekeningOverzichtTabel.setModel(
+                new RekeningenOverzichtTableModel(transactie));
+        this.spaarpotOverzichtTabel.setModel(
+                new SpaarpotOverzichtTableModel(transactie));
+        setColumnWidth(rekeningOverzichtTabel, 0, 220);
+        setColumnWidth(rekeningOverzichtTabel, 1, 100);
+        setColumnWidth(rekeningOverzichtTabel, 2, 100);
+        setColumnWidth(rekeningOverzichtTabel, 3, 100);
+        setColumnWidth(spaarpotOverzichtTabel, 0, 220);
+        setColumnWidth(spaarpotOverzichtTabel, 1, 100);
+        setColumnWidth(spaarpotOverzichtTabel, 2, 100);
+        setColumnWidth(spaarpotOverzichtTabel, 3, 100);
+        rekeningOverzichtTabel.getColumnModel().getColumn(1).
+                setCellRenderer(new BedragCellRenderer());
+        rekeningOverzichtTabel.getColumnModel().getColumn(2).
+                setCellRenderer(new BedragCellRenderer());
+        rekeningOverzichtTabel.getColumnModel().getColumn(3).
+                setCellRenderer(new BedragCellRenderer());
+        spaarpotOverzichtTabel.getColumnModel().getColumn(1).
+                setCellRenderer(new BedragCellRenderer());
+        spaarpotOverzichtTabel.getColumnModel().getColumn(2).
+                setCellRenderer(new BedragCellRenderer());
+        spaarpotOverzichtTabel.getColumnModel().getColumn(3).
+                setCellRenderer(new BedragCellRenderer());
+    }
+}
